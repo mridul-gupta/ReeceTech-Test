@@ -29,16 +29,12 @@ class LocalDataSource(
 
     override suspend fun getContacts(addressBookId: Int): Result<List<Contact>> =
         withContext(ioDispatcher) {
-            try {
-                val list = addressBooks[addressBookId] as List<Contact>?
+            val list = addressBooks[addressBookId] as List<Contact>?
 
-                if (list.isNullOrEmpty()) {
-                    Result.Success(listOf())
-                } else {
-                    Result.Success(list)
-                }
-            } catch (e: Exception) {
-                Result.Error(e)
+            when {
+                list == null -> Result.Error(Exception("Address book not found"))
+                list.isEmpty() -> Result.Success(list)
+                else -> Result.Success(list)
             }
         }
 

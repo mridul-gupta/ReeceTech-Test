@@ -1,16 +1,14 @@
 package ui
 
-import kotlinx.coroutines.runBlocking
 import data.Contact
-import data.Result
 import data.source.DefaultRepository
 import data.source.Repository
 import data.source.local.LocalDataSource
 
 
 fun printPrompt() {
-    println("\np=================================================================")
-    println("Selected Addressbook: $selectedAB")
+    println("\n=================================================================")
+    println("Selected Addressbook: ${presenter.selectedAB}")
     println("Commands:")
     println("    press 'S' to select address book (default 1)")
     println("    press 'A' to add contact")
@@ -27,9 +25,9 @@ fun switchAB() {
         val newAB: Int? = readLine()?.toInt()
 
         if (newAB != null && newAB > 0 && newAB <= 5) {
-            selectedAB = newAB
+            presenter.selectedAB = newAB
         }
-    } catch (e : Exception) {
+    } catch (e: Exception) {
         println("Invalid Address book selected. Max 5 address books.")
     }
 }
@@ -49,48 +47,35 @@ fun getContactFromUser(): Contact? {
 }
 
 
-fun addContact(selectedAB: Int) {
+fun addContact() {
     val contact = getContactFromUser() ?: return
-    runBlocking { repository.addContact(selectedAB, contact) }
-    printContacts(selectedAB)
+    presenter.addContact(contact)
+    printContacts()
 }
 
-fun removeContact(selectedAB: Int) {
+fun removeContact() {
     val contact = getContactFromUser() ?: return
-
-    runBlocking { repository.removeContact(selectedAB, contact) }
-    printContacts(selectedAB)
+    presenter.removeContact(contact)
+    printContacts()
 }
 
-fun printContacts(selectedAB: Int) {
-    runBlocking {
-        val result = repository.getContacts(selectedAB)
-        if (result is Result.Success) {
-            if (result.data.isNotEmpty())
-                println(result.data)
-            else
-                println("Address book empty")
-        } else {
-            println(result)
-        }
-    }
+fun printContacts() {
+    println(presenter.getContacts())
 }
 
 fun printUniqueContacts() {
-    runBlocking { println(repository.getUniqueContactsAcross()) }
+    println(presenter.getUniqueContactsAcross())
 }
 
-fun obtainRepository(): Repository {
+private fun obtainRepository(): Repository {
     return DefaultRepository(
         LocalDataSource()
     )
 }
 
-var selectedAB: Int = 1
-lateinit var repository: Repository
+val presenter: Presenter = Presenter(obtainRepository())
 
 fun main() {
-    repository = obtainRepository()
 
     while (true) {
         printPrompt()
@@ -103,9 +88,9 @@ fun main() {
 
         when (input[0].toUpperCase()) {
             'S' -> switchAB()
-            'A' -> addContact(selectedAB)
-            'R' -> removeContact(selectedAB)
-            'P' -> printContacts(selectedAB)
+            'A' -> addContact()
+            'R' -> removeContact()
+            'P' -> printContacts()
             'U' -> printUniqueContacts()
             'Q' -> {
                 println("Bye!!")
