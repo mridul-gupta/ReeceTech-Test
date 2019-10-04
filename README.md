@@ -1,7 +1,7 @@
 ## ReeceTech Test
 
 ### High level design
-Repository (to manange local & remote data sources)
+Repository (to manange data sources)
   - allows changing or adding data sources
   
 Presenter
