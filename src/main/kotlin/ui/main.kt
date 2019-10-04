@@ -46,27 +46,6 @@ fun getContactFromUser(): Contact? {
     return Contact(name, phone)
 }
 
-
-fun addContact() {
-    val contact = getContactFromUser() ?: return
-    presenter.addContact(contact)
-    printContacts()
-}
-
-fun removeContact() {
-    val contact = getContactFromUser() ?: return
-    presenter.removeContact(contact)
-    printContacts()
-}
-
-fun printContacts() {
-    println(presenter.getContacts())
-}
-
-fun printUniqueContacts() {
-    println(presenter.getUniqueContactsAcross())
-}
-
 private fun obtainRepository(): Repository {
     return DefaultRepository(
         LocalDataSource()
@@ -88,10 +67,20 @@ fun main() {
 
         when (input[0].toUpperCase()) {
             'S' -> switchAB()
-            'A' -> addContact()
-            'R' -> removeContact()
-            'P' -> printContacts()
-            'U' -> printUniqueContacts()
+            'A' -> {
+                presenter.addContact(getContactFromUser() ?: return)
+            }
+            'R' -> {
+                presenter.removeContact(getContactFromUser() ?: return)
+            }
+            'P' -> {
+                presenter.getContacts()
+                println(presenter.selectedABContacts)
+            }
+            'U' -> {
+                presenter.getUniqueContactsAcross()
+                println(presenter.allUniqueContacts)
+            }
             'Q' -> {
                 println("Bye!!")
                 return

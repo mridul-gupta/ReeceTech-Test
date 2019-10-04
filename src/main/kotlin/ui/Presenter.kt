@@ -13,6 +13,12 @@ class Presenter(
 ) {
     var selectedAB: Int = 1
 
+    /* change to observable type to update UI */
+    var selectedABContacts: MutableList<Contact> = mutableListOf()
+    var allUniqueContacts: MutableList<Contact> = mutableListOf()
+
+    var dataLoading: Boolean = false
+
     fun addContact(contact: Contact) {
         runBlocking {
             repository.addContact(selectedAB, contact)
@@ -25,25 +31,36 @@ class Presenter(
         }
     }
 
-    fun getContacts(): List<Contact> =
+    fun getContacts() {
+        dataLoading = true
+
         runBlocking {
+            dataLoading = true
             val result = repository.getContacts(selectedAB)
+
+            selectedABContacts.clear()
             if (result is Result.Success) {
-                return@runBlocking result.data
+                selectedABContacts.addAll(result.data)
             } else {
                 logger(result as Result.Error)
-                return@runBlocking emptyList<Contact>()
             }
         }
+        dataLoading = false
+    }
 
-    fun getUniqueContactsAcross(): List<Contact> =
+    fun getUniqueContactsAcross() {
+        dataLoading = true
+
         runBlocking {
             val result = repository.getUniqueContactsAcross()
+
+            allUniqueContacts.clear()
             if (result is Result.Success) {
-                return@runBlocking result.data
+                allUniqueContacts.addAll(result.data)
             } else {
                 logger(result as Result.Error)
-                return@runBlocking emptyList<Contact>()
             }
         }
+        dataLoading = false
+    }
 }
