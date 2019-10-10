@@ -13,6 +13,7 @@ class LocalDataSource(
 
     /* local data */
     private var addressBooks: MutableMap<Int, MutableList<Contact>> = mutableMapOf()
+    private var contactCount: MutableMap<Contact, Int> = mutableMapOf()
 
     override suspend fun addContact(addressBookId: Int, contact: Contact) {
         var localList = addressBooks[addressBookId]
@@ -21,6 +22,12 @@ class LocalDataSource(
             localList = mutableListOf()
         localList.add(contact)
         addressBooks[addressBookId] = localList
+
+        if (contactCount[contact] == null) {
+            contactCount[contact] = 1
+        } else {
+            contactCount[contact] = contactCount[contact]!!.plus(1)
+        }
     }
 
     override suspend fun removeContact(addressBookId: Int, contact: Contact) {
@@ -42,6 +49,17 @@ class LocalDataSource(
         withContext(ioDispatcher) {
             return@withContext try {
                 Result.Success(addressBooks.flatMap { it.value }.distinct())
+            } catch (e: Exception) {
+                Result.Error(e)
+            }
+        }
+
+    override suspend fun getDuplicates(): Result<List<Contact>> =
+        withContext(ioDispatcher) {
+            val duplicates = contactCount.filter { it.value > 1 }.map { it.key }
+
+            return@withContext try {
+                Result.Success(duplicates)
             } catch (e: Exception) {
                 Result.Error(e)
             }

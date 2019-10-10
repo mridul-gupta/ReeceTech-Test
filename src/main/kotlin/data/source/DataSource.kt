@@ -13,4 +13,6 @@ interface DataSource {
 
     suspend fun getUniqueContactsAcross(): Result<List<Contact>>
 
+    suspend fun getDuplicates(): Result<List<Contact>>
+
 }

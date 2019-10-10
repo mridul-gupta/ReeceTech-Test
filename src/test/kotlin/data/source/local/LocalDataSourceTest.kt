@@ -17,6 +17,7 @@ class LocalDataSourceTest {
     private val contact3 = Contact("Narendra Modi", "435625703")
     private val contact4 = Contact("Borris Jhonson", "435625704")
     private val contact5 = Contact("Xi Jinping", "435625705")
+    private val contact6 = Contact("Xi Jinping", "435625705")
 
     @Before
     fun setUp() = runBlocking {
@@ -30,6 +31,7 @@ class LocalDataSourceTest {
         /* add to AB2 */
         localDataSource.addContact(2, contact4)
         localDataSource.addContact(2, contact5)
+        localDataSource.addContact(2, contact6)
     }
 
 
@@ -193,5 +195,17 @@ class LocalDataSourceTest {
         localDataSource.addContact(addressBook11, contact3)
         localDataSource.addContact(addressBook12, contact2)
         assertTrue((localDataSource.getUniqueContactsAcross() as Result.Success).data.size == 5)
+    }
+
+    @Test
+    fun getDuplicates_Success() = runBlocking {
+        val result = localDataSource.getDuplicates()
+
+        if (result is Result.Success) {
+            assertTrue(result.data.size == 1);
+            assertTrue(result.data[0].name == "Xi Jinping");
+            assertTrue(result.data[0].phone == "435625705");
+        } else
+            assertTrue(false)
     }
 }
